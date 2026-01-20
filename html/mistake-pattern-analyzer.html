@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Mistake Pattern Analyzer - NEET/JEE</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 16px;
+        opacity: 0.9;
+      }
+
+      .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        color: white;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      .ai-pulse {
+        width: 8px;
+        height: 8px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-number {
+        font-size: 32px;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .insight-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #667eea;
+        transition: transform 0.2s;
+      }
+
+      .insight-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      .insight-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+      }
+
+      .insight-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        flex: 1;
+      }
+
+      .confidence-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        margin-left: 12px;
+      }
+
+      .confidence-high {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .confidence-medium {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .insight-description {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+
+      .evidence-section {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+
+      .evidence-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 12px;
+      }
+
+      .evidence-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .evidence-item:last-child {
+        border-bottom: none;
+      }
+
+      .evidence-icon {
+        font-size: 18px;
+      }
+
+      .evidence-text {
+        font-size: 14px;
+        color: #555;
+        flex: 1;
+      }
+
+      .recommendation-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 16px;
+      }
+
+      .recommendation-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .recommendation-text {
+        font-size: 14px;
+        line-height: 1.5;
+        opacity: 0.95;
+      }
+
+      .chart-container {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .bar-chart {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .bar-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .bar-label {
+        min-width: 180px;
+        font-size: 14px;
+        color: #555;
+      }
+
+      .bar-track {
+        flex: 1;
+        height: 32px;
+        background: #f0f0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 12px;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+        transition: width 1s ease;
+      }
+
+      .time-heatmap {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .heatmap-cell {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        transition: transform 0.2s;
+      }
+
+      .heatmap-cell:hover {
+        transform: scale(1.05);
+      }
+
+      .heatmap-label {
+        font-size: 10px;
+        margin-bottom: 4px;
+        opacity: 0.8;
+      }
+
+      .heat-low {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .heat-medium {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .heat-high {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #5568d3;
+        transform: scale(1.02);
+      }
+
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .btn-secondary:hover {
+        background: #e5e7eb;
+      }
+
+      .pattern-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        background: #f3f4f6;
+        border-radius: 12px;
+        font-size: 12px;
+        color: #555;
+        margin-right: 8px;
+        margin-top: 8px;
+      }
+
+      .loading-shimmer {
+        background: linear-gradient(
+          90deg,
+          #f0f0f0 25%,
+          #e0e0e0 50%,
+          #f0f0f0 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🤖 AI Mistake Pattern Analyzer</h1>
+        <p>Discover your unique error fingerprint</p>
+        <div class="ai-badge">
+          <div class="ai-pulse"></div>
+          AI analyzing 247 questions from last 30 days
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">247</div>
+          <div class="stat-label">Questions Analyzed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">68</div>
+          <div class="stat-label">Mistakes Found</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Patterns Detected</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">72%</div>
+          <div class="stat-label">Accuracy Score</div>
+        </div>
+      </div>
+
+      <!-- Pattern Insights -->
+      <div class="insight-card">
+        <div class="insight-header">
+          <div class="insight-title">
+            ⚡ You rush through multi-diagram questions
+          </div>
+          <div class="confidence-badge confidence-high">95% Confidence</div>
+        </div>
+        <div class="insight-description">
+          AI detected that you're 3.2x more likely to make mistakes on questions
+          with 2+ diagrams. You spend an average of 42 seconds on these vs 68
+          seconds on single-diagram questions, but your accuracy drops from 78%
+          to 54%.
+        </div>
+
+        <div class="evidence-section">
+          <div class="evidence-title">📊 Evidence from your tests:</div>
+          <div class="evidence-item">
+            <span class="evidence-icon">❌</span>
+            <span class="evidence-text"
+              >Physics Mock #12: Missed 4/5 circuit diagram questions</span
+            >
+          </div>
+          <div class="evidence-item">
+            <span class="evidence-icon">❌</span>
+            <span class="evidence-text"
+              >Chemistry Test #8: Rushed through organic reaction
+              mechanisms</span
+            >
+          </div>
+          <div class="evidence-item">
+            <span class="evidence-icon">❌</span>
+            <span class="evidence-text"
+              >Biology Mock #5: Skipped details in cell structure diagrams</span
+            >
+          </div>
+        </div>
+
+        <div class="recommendation-box">
+          <div class="recommendation-title">💡 AI Recommendation</div>
+          <div class="recommendation-text">
+            When you see multiple diagrams, pause for 5 seconds before starting.
+            Label each diagram mentally (A, B, C) and read the question twice.
+            Aim for 60+ seconds on these questions.
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="showPractice('diagrams')">
+            Practice Similar Questions
+          </button>
+          <button class="btn btn-secondary" onclick="dismiss()">
+            Mark as Resolved
+          </button>
+        </div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <div class="insight-title">🔄 You confuse mirror-image concepts</div>
+          <div class="confidence-badge confidence-high">89% Confidence</div>
+        </div>
+        <div class="insight-description">
+          You frequently mix up concepts that are opposites or mirror images of
+          each other. This pattern appears across all subjects and accounts for
+          23% of your total mistakes.
+        </div>
+
+        <div class="evidence-section">
+          <div class="evidence-title">🎯 Common confusions detected:</div>
+          <div class="evidence-item">
+            <span class="evidence-icon">🔁</span>
+            <span class="evidence-text"
+              >Endothermic ↔ Exothermic (confused 7 times)</span
+            >
+          </div>
+          <div class="evidence-item">
+            <span class="evidence-icon">🔁</span>
+            <span class="evidence-text"
+              >Mitosis ↔ Meiosis (confused 5 times)</span
+            >
+          </div>
+          <div class="evidence-item">
+            <span class="evidence-icon">🔁</span>
+            <span class="evidence-text"
+              >Concave ↔ Convex lenses (confused 4 times)</span
+            >
+          </div>
+        </div>
+
+        <div class="recommendation-box">
+          <div class="recommendation-title">💡 AI Recommendation</div>
+          <div class="recommendation-text">
+            Create a "confusion matrix" flashcard deck with these pairs.
+            Practice them side-by-side daily. Use mnemonics: "ENDothermic = ENDs
+            with heat absorbed"
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="showPractice('concepts')">
+            Generate Confusion Deck
+          </button>
+          <button class="btn btn-secondary" onclick="viewAll()">
+            See All Confusions
+          </button>
+        </div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <div class="insight-title">
+            ⏰ Calculation errors spike in final 15 minutes
+          </div>
+          <div class="confidence-badge confidence-medium">82% Confidence</div>
+        </div>
+        <div class="insight-description">
+          Your calculation accuracy drops by 41% in the last quarter of timed
+          tests. This suggests mental fatigue or time pressure affecting your
+          arithmetic.
+        </div>
+
+        <div class="evidence-section">
+          <div class="evidence-title">⏱️ Time-based error distribution:</div>
+          <div class="time-heatmap">
+            <div class="heatmap-cell heat-low">
+              <div class="heatmap-label">0-15m</div>
+              <div>8%</div>
+            </div>
+            <div class="heatmap-cell heat-low">
+              <div class="heatmap-label">15-30m</div>
+              <div>12%</div>
+            </div>
+            <div class="heatmap-cell heat-medium">
+              <div class="heatmap-label">30-45m</div>
+              <div>18%</div>
+            </div>
+            <div class="heatmap-cell heat-medium">
+              <div class="heatmap-label">45-60m</div>
+              <div>22%</div>
+            </div>
+            <div class="heatmap-cell heat-high">
+              <div class="heatmap-label">60-75m</div>
+              <div>31%</div>
+            </div>
+            <div class="heatmap-cell heat-high">
+              <div class="heatmap-label">75-90m</div>
+              <div>38%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="recommendation-box">
+          <div class="recommendation-title">💡 AI Recommendation</div>
+          <div class="recommendation-text">
+            Save easier calculation-heavy questions for the end. Practice
+            15-minute "fatigue drills" where you solve math problems after a
+            full mock test. Consider a 30-second breathing break at the
+            60-minute mark.
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="showPractice('timing')">
+            Start Fatigue Training
+          </button>
+          <button class="btn btn-secondary" onclick="dismiss()">Dismiss</button>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="chart-container">
+        <div class="chart-title">📈 Mistake Categories Breakdown</div>
+        <div class="bar-chart">
+          <div class="bar-item">
+            <div class="bar-label">Conceptual Confusion</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: 35%">35%</div>
+            </div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-label">Calculation Errors</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: 28%">28%</div>
+            </div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-label">Rushed Reading</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: 22%">22%</div>
+            </div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-label">Unit Conversion Misses</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: 10%">10%</div>
+            </div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-label">Formula Application</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: 5%">5%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <div class="insight-title">
+            📐 You miss questions requiring unit conversions
+          </div>
+          <div class="confidence-badge confidence-medium">76% Confidence</div>
+        </div>
+        <div class="insight-description">
+          Questions that require converting units (cm to m, hours to seconds,
+          etc.) have a 62% error rate for you vs 28% on similar questions
+          without conversions.
+        </div>
+
+        <div>
+          <span class="pattern-tag">Physics: 8 mistakes</span>
+          <span class="pattern-tag">Chemistry: 4 mistakes</span>
+          <span class="pattern-tag">Maths: 3 mistakes</span>
+        </div>
+
+        <div class="recommendation-box">
+          <div class="recommendation-title">💡 AI Recommendation</div>
+          <div class="recommendation-text">
+            Circle all units in the question before solving. Create a "unit
+            conversion cheat sheet" and review it before each test. Practice 20
+            conversion-heavy problems daily for 1 week.
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="showPractice('units')">
+            Practice Unit Conversions
+          </button>
+          <button class="btn btn-secondary" onclick="dismiss()">Dismiss</button>
+        </div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <div class="insight-title">
+            🎯 Positive Pattern: Strong in numerical reasoning
+          </div>
+          <div
+            class="confidence-badge confidence-high"
+            style="background: #dcfce7; color: #166534"
+          >
+            Strength
+          </div>
+        </div>
+        <div class="insight-description">
+          You excel at questions requiring multi-step numerical problem solving.
+          Your accuracy on these is 89%, well above the average of 67%.
+        </div>
+
+        <div
+          class="recommendation-box"
+          style="background: linear-gradient(135deg, #10b981 0%, #059669 100%)"
+        >
+          <div class="recommendation-title">⭐ AI Insight</div>
+          <div class="recommendation-text">
+            This is your superpower! In exams, tackle numerical problems first
+            to build confidence. Consider helping peers with these topics to
+            reinforce your strength.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Animate bars on load
+      window.addEventListener("load", () => {
+        document.querySelectorAll(".bar-fill").forEach((bar) => {
+          const width = bar.style.width;
+          bar.style.width = "0%";
+          setTimeout(() => {
+            bar.style.width = width;
+          }, 100);
+        });
+      });
+
+      function showPractice(type) {
+        alert(
+          `🎯 Loading personalized practice set for: ${type}\n\nThis would open a curated set of questions targeting your specific weakness pattern.`,
+        );
+      }
+
+      function dismiss() {
+        event.target.closest(".insight-card").style.opacity = "0.5";
+        setTimeout(() => {
+          alert(
+            "✓ Pattern marked as acknowledged. We'll continue monitoring your progress.",
+          );
+        }, 300);
+      }
+
+      function viewAll() {
+        alert(
+          "📋 This would show a complete list of all concept pairs you frequently confuse, with practice recommendations for each.",
+        );
+      }
+
+      // Simulate AI processing
+      const aiPulse = document.querySelector(".ai-pulse");
+      setInterval(() => {
+        aiPulse.style.transform = "scale(1.5)";
+        setTimeout(() => {
+          aiPulse.style.transform = "scale(1)";
+        }, 200);
+      }, 2000);
+    </script>
+  </body>
+</html>

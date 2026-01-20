@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Concept Decay Tracker - NEET/JEE</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 16px;
+        opacity: 0.9;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-number {
+        font-size: 32px;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .concept-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .concept-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .concept-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .concept-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .subject-tag {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .physics {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+      .chemistry {
+        background: #f3e5f5;
+        color: #7b1fa2;
+      }
+      .biology {
+        background: #e8f5e9;
+        color: #388e3c;
+      }
+      .maths {
+        background: #fff3e0;
+        color: #f57c00;
+      }
+
+      .decay-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .days-ago {
+        font-weight: 500;
+      }
+
+      .decay-bar-container {
+        width: 100%;
+        height: 24px;
+        background: #f0f0f0;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .decay-bar {
+        height: 100%;
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        color: white;
+      }
+
+      .decay-critical {
+        background: linear-gradient(90deg, #ef5350, #e53935);
+      }
+      .decay-warning {
+        background: linear-gradient(90deg, #ffa726, #fb8c00);
+      }
+      .decay-good {
+        background: linear-gradient(90deg, #66bb6a, #43a047);
+      }
+
+      .action-btn {
+        margin-top: 12px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .revise-btn {
+        background: #667eea;
+        color: white;
+      }
+
+      .revise-btn:hover {
+        background: #5568d3;
+        transform: scale(1.02);
+      }
+
+      .alert-banner {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .alert-icon {
+        font-size: 24px;
+      }
+
+      .filter-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 10px;
+        border-radius: 12px;
+      }
+
+      .filter-tab {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .filter-tab.active {
+        background: white;
+        color: #667eea;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: white;
+      }
+
+      .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🧠 Concept Decay Tracker</h1>
+        <p>Don't let your hard work fade away</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">12</div>
+          <div class="stat-label">Concepts Learned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">3</div>
+          <div class="stat-label">Critical Decay</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Need Revision</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">4</div>
+          <div class="stat-label">Fresh Memory</div>
+        </div>
+      </div>
+
+      <div class="alert-banner">
+        <span class="alert-icon">⚠️</span>
+        <div>
+          <strong>3 concepts are in critical decay!</strong> Revise them now
+          before you forget completely.
+        </div>
+      </div>
+
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterConcepts('all')">
+          All
+        </button>
+        <button class="filter-tab" onclick="filterConcepts('critical')">
+          Critical
+        </button>
+        <button class="filter-tab" onclick="filterConcepts('warning')">
+          Warning
+        </button>
+        <button class="filter-tab" onclick="filterConcepts('good')">
+          Fresh
+        </button>
+      </div>
+
+      <div id="concepts-container">
+        <!-- Critical Decay -->
+        <div class="concept-card" data-status="critical">
+          <div class="concept-header">
+            <div class="concept-title">Thermodynamics - Laws & Cycles</div>
+            <span class="subject-tag physics">Physics</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 18 days ago</span>
+            <span style="color: #e53935; font-weight: 600">Critical!</span>
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-critical" style="width: 15%">15%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+
+        <div class="concept-card" data-status="critical">
+          <div class="concept-header">
+            <div class="concept-title">Organic Chemistry - Reactions</div>
+            <span class="subject-tag chemistry">Chemistry</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 21 days ago</span>
+            <span style="color: #e53935; font-weight: 600">Critical!</span>
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-critical" style="width: 10%">10%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+
+        <div class="concept-card" data-status="critical">
+          <div class="concept-header">
+            <div class="concept-title">Calculus - Integration Techniques</div>
+            <span class="subject-tag maths">Maths</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 15 days ago</span>
+            <span style="color: #e53935; font-weight: 600">Critical!</span>
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-critical" style="width: 20%">20%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+
+        <!-- Warning -->
+        <div class="concept-card" data-status="warning">
+          <div class="concept-header">
+            <div class="concept-title">
+              Electromagnetism - Maxwell's Equations
+            </div>
+            <span class="subject-tag physics">Physics</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 9 days ago</span>
+            <span style="color: #fb8c00; font-weight: 600"
+              >Needs Attention</span
+            >
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-warning" style="width: 45%">45%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+
+        <div class="concept-card" data-status="warning">
+          <div class="concept-header">
+            <div class="concept-title">Cell Biology - Mitosis & Meiosis</div>
+            <span class="subject-tag biology">Biology</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 11 days ago</span>
+            <span style="color: #fb8c00; font-weight: 600"
+              >Needs Attention</span
+            >
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-warning" style="width: 38%">38%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+
+        <div class="concept-card" data-status="warning">
+          <div class="concept-header">
+            <div class="concept-title">Probability & Statistics</div>
+            <span class="subject-tag maths">Maths</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 8 days ago</span>
+            <span style="color: #fb8c00; font-weight: 600"
+              >Needs Attention</span
+            >
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-warning" style="width: 50%">50%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+
+        <!-- Good -->
+        <div class="concept-card" data-status="good">
+          <div class="concept-header">
+            <div class="concept-title">Kinematics - Motion in 2D</div>
+            <span class="subject-tag physics">Physics</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 2 days ago</span>
+            <span style="color: #43a047; font-weight: 600">Fresh!</span>
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-good" style="width: 92%">92%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+
+        <div class="concept-card" data-status="good">
+          <div class="concept-header">
+            <div class="concept-title">Chemical Bonding</div>
+            <span class="subject-tag chemistry">Chemistry</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 3 days ago</span>
+            <span style="color: #43a047; font-weight: 600">Fresh!</span>
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-good" style="width: 85%">85%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+
+        <div class="concept-card" data-status="good">
+          <div class="concept-header">
+            <div class="concept-title">
+              Human Physiology - Circulatory System
+            </div>
+            <span class="subject-tag biology">Biology</span>
+          </div>
+          <div class="decay-info">
+            <span class="days-ago">Last revised: 1 day ago</span>
+            <span style="color: #43a047; font-weight: 600">Fresh!</span>
+          </div>
+          <div class="decay-bar-container">
+            <div class="decay-bar decay-good" style="width: 95%">95%</div>
+          </div>
+          <button class="action-btn revise-btn" onclick="revise(this)">
+            🔄 Revise Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function filterConcepts(status) {
+        const cards = document.querySelectorAll(".concept-card");
+        const tabs = document.querySelectorAll(".filter-tab");
+
+        tabs.forEach((tab) => tab.classList.remove("active"));
+        event.target.classList.add("active");
+
+        cards.forEach((card) => {
+          if (status === "all") {
+            card.style.display = "block";
+          } else {
+            card.style.display =
+              card.dataset.status === status ? "block" : "none";
+          }
+        });
+      }
+
+      function revise(button) {
+        const card = button.closest(".concept-card");
+        const title = card.querySelector(".concept-title").textContent;
+
+        // Simulate revision
+        button.textContent = "✓ Revised!";
+        button.style.background = "#43a047";
+        button.disabled = true;
+
+        setTimeout(() => {
+          alert(
+            `Great! You've revised: ${title}\n\nThis concept's decay meter has been reset to 100%!`,
+          );
+        }, 300);
+      }
+
+      // Simulate real-time decay (for demo purposes)
+      setInterval(() => {
+        document.querySelectorAll(".decay-bar").forEach((bar) => {
+          const currentWidth = parseInt(bar.style.width);
+          if (
+            currentWidth > 0 &&
+            !bar.closest(".concept-card").querySelector("button").disabled
+          ) {
+            const newWidth = Math.max(0, currentWidth - 0.1);
+            bar.style.width = newWidth + "%";
+            bar.textContent = Math.round(newWidth) + "%";
+          }
+        });
+      }, 5000);
+    </script>
+  </body>
+</html>
