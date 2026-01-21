@@ -56,11 +56,12 @@ export default async ({ req, res, log, error }) => {
       count: storedQuestions.length,
     });
   } catch (err) {
-    error(`Error in generate-questions function: ${err.message}`);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(`Error in generate-questions function: ${errorMessage}`);
     return res.json(
       {
         success: false,
-        error: err.message,
+        error: errorMessage,
       },
       500,
     );
@@ -182,6 +183,7 @@ function parseAIResponse(content, requestedSubject) {
       topic: q.topic || undefined,
     }));
   } catch (err) {
-    throw new Error(`Failed to parse AI response: ${err.message}`);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    throw new Error(`Failed to parse AI response: ${errorMessage}`);
   }
 }

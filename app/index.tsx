@@ -15,6 +15,7 @@ import LoadingShimmer from "../components/LoadingShimmer";
 import PatternCard from "../components/PatternCard";
 import StatsGrid from "../components/StatsGrid";
 import { usePatternStore } from "../store/patternStore";
+import { getUserId } from "../utils/getUserId";
 
 export default function Index() {
   const router = useRouter();
@@ -255,6 +256,15 @@ export default function Index() {
             }}
           />
         </View>
+
+        {/* Take Test Button */}
+        <TouchableOpacity
+          onPress={() => router.push("/test")}
+          className="bg-purple-600 rounded-xl py-4 px-6 mb-6 flex-row items-center justify-center"
+        >
+          <Text className="text-white text-lg font-bold mr-2">📝</Text>
+          <Text className="text-white text-lg font-bold">Take a Test</Text>
+        </TouchableOpacity>
 
         {/* Patterns Section */}
         <View className="mb-6">

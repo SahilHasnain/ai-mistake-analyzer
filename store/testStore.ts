@@ -21,7 +21,9 @@ interface TestStore {
     subject: "Physics" | "Chemistry" | "Biology" | "Mixed",
     questionCount: number,
   ) => Promise<void>;
-  submitAnswer: (answer: "A" | "B" | "C" | "D") => Promise<void>;
+  submitAnswer: (
+    answer: "A" | "B" | "C" | "D",
+  ) => Promise<{ success: boolean; isCorrect: boolean }>;
   nextQuestion: () => void;
   endTest: () => Promise<any>;
   resetTest: () => void;
@@ -86,7 +88,7 @@ export const useTestStore = create<TestStore>((set, get) => ({
     set({ submitting: true });
 
     try {
-      await recordAnswer({
+      const result = await recordAnswer({
         userId: currentTest.user_id,
         testId: currentTest.test_id,
         question: currentQuestion,
@@ -97,6 +99,7 @@ export const useTestStore = create<TestStore>((set, get) => ({
       });
 
       set({ submitting: false });
+      return result;
     } catch (error) {
       console.error("Error submitting answer:", error);
       set({ submitting: false });

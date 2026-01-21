@@ -47,7 +47,14 @@ export async function generateQuestions(
     });
 
     if (!response.ok) {
-      const errorText = await response.text().catch(() => "Unknown error");
+      let errorText = "Unknown error";
+      try {
+        const errorData = await response.json();
+        errorText =
+          typeof errorData === "string" ? errorData : JSON.stringify(errorData);
+      } catch {
+        errorText = await response.text().catch(() => "Unknown error");
+      }
       throw new Error(
         `Function call failed (${response.status}): ${errorText}`,
       );
@@ -56,7 +63,11 @@ export async function generateQuestions(
     const data = await response.json();
 
     if (!data.success) {
-      throw new Error(data.error || "Failed to generate questions");
+      throw new Error(
+        typeof data.error === "string"
+          ? data.error
+          : "Failed to generate questions",
+      );
     }
 
     return data.questions;
