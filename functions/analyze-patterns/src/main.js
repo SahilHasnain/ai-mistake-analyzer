@@ -251,7 +251,7 @@ async function analyzeWithAI(data, userId) {
           {
             role: "system",
             content:
-              "You are an expert NEET exam coach analyzing student mistake patterns. Identify behavioral patterns in errors and provide actionable recommendations.",
+              "You are an expert NEET exam coach analyzing student mistake patterns. Identify behavioral patterns in errors and provide actionable recommendations. IMPORTANT: Respond in Hinglish (Hindi-English mix) - use a natural blend of Hindi and English words that Indian students commonly use. Write in Roman script (Latin alphabet), not Devanagari.",
           },
           {
             role: "user",
@@ -292,22 +292,22 @@ function createAnalysisPrompt(data) {
 
 **Subject Performance:**
 ${Object.entries(data.subjectStats)
-      .map(
-        ([subject, stats]) =>
-          `- ${subject}: ${stats.incorrect}/${stats.total} incorrect (${((stats.incorrect / stats.total) * 100).toFixed(1)}%)`,
-      )
-      .join("\n")}
+  .map(
+    ([subject, stats]) =>
+      `- ${subject}: ${stats.incorrect}/${stats.total} incorrect (${((stats.incorrect / stats.total) * 100).toFixed(1)}%)`,
+  )
+  .join("\n")}
 
 **Incorrect Answers (Sample):**
 ${data.incorrectAnswers
-      .slice(0, 20)
-      .map(
-        (ans, i) =>
-          `${i + 1}. [${ans.subject}] ${ans.questionText.substring(0, 100)}...
+  .slice(0, 20)
+  .map(
+    (ans, i) =>
+      `${i + 1}. [${ans.subject}] ${ans.questionText.substring(0, 100)}...
    - Selected: ${ans.selectedAnswer}, Correct: ${ans.correctAnswer}
    - Time: ${ans.timeTaken}s, Position: ${ans.questionPosition}, Topic: ${ans.topic}`,
-      )
-      .join("\n\n")}
+  )
+  .join("\n\n")}
 
 **Task:**
 Identify 2-4 behavioral mistake patterns (NOT content gaps). Look for:
@@ -318,26 +318,28 @@ Identify 2-4 behavioral mistake patterns (NOT content gaps). Look for:
 
 For each pattern, provide:
 1. Pattern type (e.g., "rushing", "fatigue", "confusion")
-2. Title (concise, student-friendly)
-3. Description (2-3 sentences explaining the pattern)
+2. Title (concise, student-friendly, in Hinglish)
+3. Description (2-3 sentences explaining the pattern, in Hinglish)
 4. Confidence score (0-100, based on evidence strength)
-5. Evidence (3-5 specific examples from the data)
-6. Recommendation (actionable advice to fix the pattern)
+5. Evidence (3-5 specific examples from the data, in Hinglish)
+6. Recommendation (actionable advice to fix the pattern, in Hinglish)
 7. Subject distribution (if pattern affects specific subjects)
+
+**IMPORTANT:** Write title, description, evidence, and recommendation in Hinglish (Hindi-English mix) using Roman script. Use natural conversational language that Indian NEET students use - mix Hindi and English words naturally. For example: "Aap multi-step problems mein bahut jaldi answer kar rahe ho", "Physics ke calculation questions mein careless mistakes ho rahi hain", "Practice karte waqt intermediate steps likhna zaroori hai".
 
 Format as JSON array:
 [
   {
     "pattern_type": "rushing",
-    "title": "Rushing Through Multi-Step Problems",
-    "description": "You tend to answer complex questions too quickly, leading to careless mistakes. This is especially evident in Physics problems requiring multiple calculation steps.",
+    "title": "Multi-Step Problems Mein Rushing",
+    "description": "Aap complex questions ko bahut jaldi answer kar rahe ho, jisse careless mistakes ho rahi hain. Yeh pattern especially Physics ke calculation problems mein zyada dikh raha hai.",
     "confidence": 85,
     "evidence": [
-      "Answered 3 mechanics questions in under 30 seconds each",
-      "Made calculation errors in 4 out of 5 rushed questions",
-      "Accuracy drops to 40% when time taken < 35 seconds"
+      "3 mechanics questions ko 30 seconds se kam mein answer kiya",
+      "5 mein se 4 rushed questions mein calculation errors hue",
+      "Jab time 35 seconds se kam ho, accuracy 40% tak gir jaati hai"
     ],
-    "recommendation": "Slow down on multi-step problems. Aim for at least 60 seconds on calculation-heavy questions. Write down intermediate steps to avoid errors.",
+    "recommendation": "Multi-step problems mein thoda slow down karo. Calculation-heavy questions ke liye kam se kam 60 seconds lo. Intermediate steps likhne ki aadat dalo taaki errors avoid ho sakein.",
     "subject_distribution": {
       "Physics": 5,
       "Chemistry": 2
