@@ -16,20 +16,24 @@ export default async ({ req, res, log, error }) => {
   try {
     log("[DEBUG] Function invoked");
     log(`[DEBUG] Request body: ${req.body}`);
-    
+
     // Parse request body
     const payload = JSON.parse(req.body || "{}");
     const { subject = "Mixed", count = 10, difficulty = "Medium" } = payload;
 
-    log(`[DEBUG] Parsed payload - subject: ${subject}, count: ${count}, difficulty: ${difficulty}`);
+    log(
+      `[DEBUG] Parsed payload - subject: ${subject}, count: ${count}, difficulty: ${difficulty}`,
+    );
     log(`Generating ${count} ${difficulty} questions for ${subject}`);
 
     // Initialize Appwrite client
     log("[DEBUG] Initializing Appwrite client");
     log(`[DEBUG] APPWRITE_ENDPOINT: ${process.env.APPWRITE_ENDPOINT}`);
-    log(`[DEBUG] APPWRITE_FUNCTION_PROJECT_ID: ${process.env.APPWRITE_FUNCTION_PROJECT_ID}`);
+    log(
+      `[DEBUG] APPWRITE_FUNCTION_PROJECT_ID: ${process.env.APPWRITE_FUNCTION_PROJECT_ID}`,
+    );
     log(`[DEBUG] GROQ_API_KEY exists: ${!!process.env.GROQ_API_KEY}`);
-    
+
     const client = new Client()
       .setEndpoint(process.env.APPWRITE_ENDPOINT)
       .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
@@ -40,17 +44,27 @@ export default async ({ req, res, log, error }) => {
 
     // Generate questions using Groq AI
     log("[DEBUG] Starting AI question generation");
-    const questions = await generateQuestionsWithAI(subject, count, difficulty, log, error);
+    const questions = await generateQuestionsWithAI(
+      subject,
+      count,
+      difficulty,
+      log,
+      error,
+    );
     log(`[DEBUG] Generated ${questions.length} questions from AI`);
     log(`Generated ${questions.length} questions from AI`);
 
     // Store questions in database
-    log(`[DEBUG] Attempting to store ${questions.length} questions in database`);
+    log(
+      `[DEBUG] Attempting to store ${questions.length} questions in database`,
+    );
     const storedQuestions = [];
     for (let i = 0; i < questions.length; i++) {
       const question = questions[i];
       try {
-        log(`[DEBUG] Storing question ${i + 1}: ${question.question_text.substring(0, 50)}...`);
+        log(
+          `[DEBUG] Storing question ${i + 1}: ${question.question_text.substring(0, 50)}...`,
+        );
         const doc = await databases.createDocument(
           process.env.APPWRITE_DATABASE_ID,
           "QUESTIONS",
@@ -132,12 +146,16 @@ async function generateQuestionsWithAI(subject, count, difficulty, log, error) {
 
     const data = await response.json();
     log(`[DEBUG] Groq response parsed successfully`);
-    log(`[DEBUG] Response structure - choices: ${data.choices ? "present" : "missing"}`);
-    
+    log(
+      `[DEBUG] Response structure - choices: ${data.choices ? "present" : "missing"}`,
+    );
+
     const content = data.choices[0]?.message?.content;
 
     if (!content) {
-      log(`[DEBUG] No content in Groq response. Full response: ${JSON.stringify(data).substring(0, 500)}`);
+      log(
+        `[DEBUG] No content in Groq response. Full response: ${JSON.stringify(data).substring(0, 500)}`,
+      );
       throw new Error("No content received from AI");
     }
 
@@ -196,7 +214,7 @@ function parseAIResponse(content, requestedSubject, log, error) {
   try {
     log(`[DEBUG] Parsing AI response (content length: ${content.length})`);
     log(`[DEBUG] Content preview: ${content.substring(0, 200)}...`);
-    
+
     // Extract JSON from response
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
@@ -214,7 +232,7 @@ function parseAIResponse(content, requestedSubject, log, error) {
     }
 
     log(`[DEBUG] Parsed ${parsed.length} questions from AI response`);
-    
+
     const questions = parsed.map((q, index) => ({
       question_text: q.question_text || `Question ${index + 1}`,
       option_a: q.option_a || "Option A",
@@ -226,7 +244,7 @@ function parseAIResponse(content, requestedSubject, log, error) {
       difficulty: q.difficulty || "Medium",
       topic: q.topic || undefined,
     }));
-    
+
     log(`[DEBUG] Successfully parsed ${questions.length} questions`);
     return questions;
   } catch (err) {
