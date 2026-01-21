@@ -1,15 +1,14 @@
 /**
  * Test Service
- * Handles test session management and answer recording via Appwrite Functions
+ * Handles test session management and answer recording directly with Appwrite
  */
 
+import { Query } from "react-native-appwrite";
 import { Question } from "../types";
+import { databases } from "./appwrite";
 
-const RECORD_ANSWER_URL =
-  process.env.EXPO_PUBLIC_RECORD_ANSWER_FUNCTION_URL || "";
-const GET_RESULTS_URL =
-  process.env.EXPO_PUBLIC_GET_TEST_RESULTS_FUNCTION_URL || "";
-const PROJECT_ID = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID || "";
+const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID || "";
+const RESPONSES_COLLECTION_ID = "USER_RESPONSES";
 
 /**
  * Record a user's answer to a question
@@ -33,50 +32,34 @@ export async function recordAnswer(params: {
     testDurationSoFar,
   } = params;
 
+  const isCorrect = selectedAnswer === question.correct_answer;
+
   try {
-    if (!RECORD_ANSWER_URL) {
-      throw new Error("Record answer function URL not configured");
+    if (!DATABASE_ID || !RESPONSES_COLLECTION_ID) {
+      throw new Error("Database configuration is missing");
     }
 
-    if (!PROJECT_ID) {
-      throw new Error("Appwrite project ID not configured");
-    }
-
-    const response = await fetch(RECORD_ANSWER_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Appwrite-Project": PROJECT_ID,
-      },
-      body: JSON.stringify({
-        userId,
-        testId,
-        questionId: question.$id,
-        selectedAnswer,
-        correctAnswer: question.correct_answer,
-        timeTaken,
-        questionPosition,
-        testDurationSoFar,
+    await databases.createDocument(
+      DATABASE_ID,
+      RESPONSES_COLLECTION_ID,
+      "unique()",
+      {
+        user_id: userId,
+        question_id: question.$id,
+        selected_answer: selectedAnswer,
+        is_correct: isCorrect,
+        time_taken: timeTaken,
+        test_id: testId,
+        timestamp: new Date().toISOString(),
+        question_position: questionPosition,
+        test_duration_so_far: testDurationSoFar,
         subject: question.subject,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "Unknown error");
-      throw new Error(
-        `Function call failed (${response.status}): ${errorText}`,
-      );
-    }
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.error || "Failed to record answer");
-    }
+      },
+    );
 
     return {
       success: true,
-      isCorrect: data.response.isCorrect,
+      isCorrect,
     };
   } catch (error) {
     console.error("Error recording answer:", error);
@@ -103,37 +86,67 @@ export async function getTestResults(testId: string): Promise<{
   };
 }> {
   try {
-    if (!GET_RESULTS_URL) {
-      throw new Error("Get test results function URL not configured");
+    if (!DATABASE_ID || !RESPONSES_COLLECTION_ID) {
+      throw new Error("Database configuration is missing");
     }
 
-    if (!PROJECT_ID) {
-      throw new Error("Appwrite project ID not configured");
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      RESPONSES_COLLECTION_ID,
+      [Query.equal("test_id", testId), Query.limit(1000)],
+    );
+
+    const responses = response.documents as any[];
+
+    if (responses.length === 0) {
+      throw new Error("No responses found for this test");
     }
 
-    const response = await fetch(GET_RESULTS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Appwrite-Project": PROJECT_ID,
-      },
-      body: JSON.stringify({ testId }),
+    const totalQuestions = responses.length;
+    const correctAnswers = responses.filter((r) => r.is_correct).length;
+    const incorrectAnswers = totalQuestions - correctAnswers;
+    const accuracy =
+      totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+    const totalTime = responses.reduce(
+      (sum, r) => sum + (r.time_taken || 0),
+      0,
+    );
+    const avgTimePerQuestion =
+      totalQuestions > 0 ? totalTime / totalQuestions : 0;
+
+    // Subject breakdown
+    const subjectBreakdown = {
+      Physics: { correct: 0, total: 0, accuracy: 0 },
+      Chemistry: { correct: 0, total: 0, accuracy: 0 },
+      Biology: { correct: 0, total: 0, accuracy: 0 },
+    };
+
+    responses.forEach((r) => {
+      const subject = r.subject as keyof typeof subjectBreakdown;
+      if (subject && subjectBreakdown[subject]) {
+        subjectBreakdown[subject].total++;
+        if (r.is_correct) {
+          subjectBreakdown[subject].correct++;
+        }
+      }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "Unknown error");
-      throw new Error(
-        `Function call failed (${response.status}): ${errorText}`,
-      );
-    }
+    // Calculate subject accuracies
+    Object.keys(subjectBreakdown).forEach((subject) => {
+      const key = subject as keyof typeof subjectBreakdown;
+      const data = subjectBreakdown[key];
+      data.accuracy = data.total > 0 ? (data.correct / data.total) * 100 : 0;
+    });
 
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.error || "Failed to get test results");
-    }
-
-    return data.results;
+    return {
+      totalQuestions,
+      correctAnswers,
+      incorrectAnswers,
+      accuracy: parseFloat(accuracy.toFixed(2)),
+      totalTime,
+      avgTimePerQuestion: parseFloat(avgTimePerQuestion.toFixed(2)),
+      subjectBreakdown,
+    };
   } catch (error) {
     console.error("Error getting test results:", error);
     throw new Error(

@@ -1,10 +1,10 @@
-# Appwrite Functions Setup Guide
+# Appwrite Functions
 
 This directory contains Appwrite Functions for the NEET Pattern Analyzer backend.
 
 ## Functions Overview
 
-### 1. **generate-questions**
+### 1. **generate-questions** 🎯
 
 Generates NEET questions using Groq AI and stores them in the database.
 
@@ -25,14 +25,36 @@ Generates NEET questions using Groq AI and stores them in the database.
 ```json
 {
   "success": true,
-  "questions": [...],
+  "questions": [
+    {
+      "$id": "question-id",
+      "question_text": "What is...",
+      "option_a": "...",
+      "option_b": "...",
+      "option_c": "...",
+      "option_d": "...",
+      "correct_answer": "A",
+      "subject": "Physics",
+      "difficulty": "Medium",
+      "topic": "Mechanics"
+    }
+  ],
   "count": 10
 }
 ```
 
-### 2. **record-answer**
+**Configuration:**
 
-Records a user's answer to a question.
+- Runtime: Node.js 18.0
+- Timeout: 300 seconds (AI generation takes time)
+- Memory: 512 MB
+- Requires: GROQ_API_KEY
+
+---
+
+### 2. **analyze-patterns** 🧠
+
+Analyzes user's test responses using Groq AI to detect behavioral mistake patterns.
 
 **Endpoint:** `POST /v1/functions/{functionId}/executions`
 
@@ -40,15 +62,7 @@ Records a user's answer to a question.
 
 ```json
 {
-  "userId": "user-123",
-  "testId": "TEST_123",
-  "questionId": "question-id",
-  "selectedAnswer": "A",
-  "correctAnswer": "B",
-  "timeTaken": 45,
-  "questionPosition": 1,
-  "testDurationSoFar": 0.75,
-  "subject": "Physics"
+  "userId": "user-123"
 }
 ```
 
@@ -57,46 +71,53 @@ Records a user's answer to a question.
 ```json
 {
   "success": true,
-  "response": {
-    "id": "response-id",
-    "isCorrect": false,
-    "selectedAnswer": "A",
-    "correctAnswer": "B"
-  }
+  "patterns": [
+    {
+      "$id": "pattern-id",
+      "user_id": "user-123",
+      "pattern_type": "rushing",
+      "title": "Rushing Through Multi-Step Problems",
+      "description": "You tend to answer complex questions too quickly...",
+      "confidence": 85,
+      "evidence": "[\"...\", \"...\"]",
+      "recommendation": "Slow down on multi-step problems...",
+      "detected_at": "2024-01-20T10:30:00.000Z",
+      "is_resolved": false,
+      "subject_distribution": "{\"Physics\": 5, \"Chemistry\": 2}"
+    }
+  ],
+  "count": 3
 }
 ```
 
-### 3. **get-test-results**
+**Configuration:**
 
-Retrieves and calculates test results.
+- Runtime: Node.js 18.0
+- Timeout: 300 seconds (AI analysis takes time)
+- Memory: 512 MB
+- Requires: GROQ_API_KEY
 
-**Endpoint:** `POST /v1/functions/{functionId}/executions`
+**Note:** Requires at least 5 user responses in the database to analyze patterns.
 
-**Payload:**
+---
 
-```json
-{
-  "testId": "TEST_123"
-}
-```
+## Frontend Operations (No Functions Needed)
 
-**Response:**
+The following operations are handled **directly from the frontend** using Appwrite SDK:
 
-```json
-{
-  "success": true,
-  "results": {
-    "testId": "TEST_123",
-    "totalQuestions": 10,
-    "correctAnswers": 7,
-    "incorrectAnswers": 3,
-    "accuracy": 70.0,
-    "totalTime": 450,
-    "avgTimePerQuestion": 45.0,
-    "subjectBreakdown": {...}
-  }
-}
-```
+### ✅ Record Answer
+
+**Frontend Service:** `services/testService.ts` → `recordAnswer()`
+
+Directly creates document in `USER_RESPONSES` collection.
+
+### ✅ Get Test Results
+
+**Frontend Service:** `services/testService.ts` → `getTestResults()`
+
+Directly queries `USER_RESPONSES` collection and calculates statistics.
+
+---
 
 ## Deployment Steps
 
@@ -112,13 +133,7 @@ npm install -g appwrite
 appwrite login
 ```
 
-### 3. Initialize Project (if not already done)
-
-```bash
-appwrite init project
-```
-
-### 4. Deploy Functions
+### 3. Deploy Functions
 
 Deploy each function individually:
 
@@ -127,113 +142,138 @@ Deploy each function individually:
 cd functions/generate-questions
 appwrite deploy function
 
-# Deploy record-answer
-cd ../record-answer
-appwrite deploy function
-
-# Deploy get-test-results
-cd ../get-test-results
+# Deploy analyze-patterns
+cd ../analyze-patterns
 appwrite deploy function
 ```
 
-### 5. Set Environment Variables
+### 4. Set Environment Variables
 
-For each function, set these environment variables in the Appwrite Console:
-
-**All Functions:**
-
-- `APPWRITE_ENDPOINT` - Your Appwrite endpoint (e.g., https://sgp.cloud.appwrite.io/v1)
-- `APPWRITE_FUNCTION_PROJECT_ID` - Your project ID
-- `APPWRITE_API_KEY` - API key with database permissions
-- `APPWRITE_DATABASE_ID` - Your database ID
-
-**generate-questions only:**
-
-- `GROQ_API_KEY` - Your Groq API key
-
-### 6. Update Frontend Environment Variables
-
-Add these to your `.env.local`:
+For **BOTH functions**, set these in Appwrite Console:
 
 ```env
-# Existing variables...
-EXPO_PUBLIC_GENERATE_QUESTIONS_FUNCTION_ID=your-function-id
-EXPO_PUBLIC_RECORD_ANSWER_FUNCTION_ID=your-function-id
-EXPO_PUBLIC_GET_TEST_RESULTS_FUNCTION_ID=your-function-id
+APPWRITE_ENDPOINT=https://sgp.cloud.appwrite.io/v1
+APPWRITE_FUNCTION_PROJECT_ID=your-project-id
+APPWRITE_API_KEY=your-api-key-with-database-permissions
+APPWRITE_DATABASE_ID=your-database-id
+GROQ_API_KEY=your-groq-api-key
 ```
 
-## Manual Deployment via Appwrite Console
+### 5. Update Frontend Environment Variables
 
-If you prefer using the Appwrite Console:
+Add to your `.env.local`:
 
-1. Go to **Functions** in your Appwrite project
-2. Click **Create Function**
-3. Choose **Node.js 18.0** runtime
-4. Upload the function code (zip the `src` folder and `package.json`)
-5. Set environment variables
-6. Set execution timeout to 300 seconds (for AI generation)
-7. Deploy
+```env
+EXPO_PUBLIC_APPWRITE_ENDPOINT=https://sgp.cloud.appwrite.io/v1
+EXPO_PUBLIC_APPWRITE_PROJECT_ID=your-project-id
+EXPO_PUBLIC_APPWRITE_DATABASE_ID=your-database-id
+
+# Function URLs (replace YOUR_FUNCTION_ID with actual IDs)
+EXPO_PUBLIC_GENERATE_QUESTIONS_FUNCTION_URL=https://sgp.cloud.appwrite.io/v1/functions/{function-id}/executions
+EXPO_PUBLIC_ANALYZE_PATTERNS_FUNCTION_URL=https://sgp.cloud.appwrite.io/v1/functions/{function-id}/executions
+```
+
+---
 
 ## Testing Functions
 
-You can test functions directly in the Appwrite Console:
+### Test generate-questions
 
-1. Go to **Functions** → Select function
-2. Click **Execute**
-3. Enter test payload
-4. View response and logs
+**In Appwrite Console:**
 
-## Function Configuration
+```json
+{
+  "subject": "Physics",
+  "count": 5,
+  "difficulty": "Medium"
+}
+```
 
-### generate-questions
+**Expected:** 5 Physics questions stored in QUESTIONS collection
 
-- **Runtime:** Node.js 18.0
-- **Timeout:** 300 seconds (AI generation can take time)
-- **Memory:** 512 MB
+### Test analyze-patterns
 
-### record-answer
+**In Appwrite Console:**
 
-- **Runtime:** Node.js 18.0
-- **Timeout:** 15 seconds
-- **Memory:** 256 MB
+```json
+{
+  "userId": "test-user-123"
+}
+```
 
-### get-test-results
+**Expected:** 2-4 patterns detected and stored in DETECTED_PATTERNS collection
 
-- **Runtime:** Node.js 18.0
-- **Timeout:** 30 seconds
-- **Memory:** 256 MB
+**Note:** Requires at least 5 responses in USER_RESPONSES for this user
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    React Native App                      │
+└─────────────────────────────────────────────────────────┘
+         │                                    │
+         │ Function Calls                     │ Direct DB Access
+         ↓                                    ↓
+┌──────────────────────────┐    ┌──────────────────────────┐
+│  Appwrite Functions      │    │  Appwrite Database       │
+│  1. generate-questions   │    │  - Record answers        │
+│  2. analyze-patterns     │    │  - Get test results      │
+└──────────────────────────┘    └──────────────────────────┘
+         │                                    │
+         └────────────────┬───────────────────┘
+                          ↓
+              ┌──────────────────────┐
+              │  Appwrite Database   │
+              │  - QUESTIONS         │
+              │  - USER_RESPONSES    │
+              │  - DETECTED_PATTERNS │
+              └──────────────────────┘
+```
+
+---
 
 ## Troubleshooting
 
-### Function fails with "Module not found"
+### "Not enough data to analyze patterns"
 
-- Ensure `package.json` is included in deployment
-- Check that `"type": "module"` is set in package.json
+- User needs at least 5 answered questions
+- Run some tests first before analyzing
 
-### Timeout errors
+### "Groq API error"
 
-- Increase function timeout in Appwrite Console
-- For generate-questions, use 300 seconds
+- Check GROQ_API_KEY is set correctly in function environment
+- Verify API key has credits
+- Check API rate limits
 
-### Database permission errors
+### Function timeout
 
-- Ensure API key has proper permissions
+- Increase timeout in Appwrite Console
+- For AI functions, use 300 seconds minimum
+
+### "Database permission error"
+
+- Ensure API key has read/write permissions
 - Check collection permissions allow function access
+- For frontend operations, ensure collection permissions allow client access
 
-### Groq API errors
+---
 
-- Verify GROQ_API_KEY is set correctly
-- Check API key has sufficient credits
-- Ensure API endpoint is accessible
+## Security Notes
 
-## Local Testing
+✅ **Groq API key** - Stored securely in function environment variables
+✅ **No client-side secrets** - Frontend only calls function endpoints
+✅ **Database operations** - Frontend uses Appwrite SDK with proper permissions
+✅ **Input validation** - Functions validate all inputs before processing
 
-To test functions locally:
+---
 
-```bash
-cd functions/generate-questions
-npm install
-node src/main.js
-```
+## Next Steps
 
-Note: You'll need to mock the Appwrite context for local testing.
+1. ✅ Deploy both functions to Appwrite
+2. ✅ Configure environment variables
+3. ✅ Test functions in Appwrite Console
+4. ✅ Update frontend .env.local with function URLs
+5. ⏭️ Build test-taking UI
+6. ⏭️ Test end-to-end flow
