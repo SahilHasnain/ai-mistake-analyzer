@@ -35,16 +35,21 @@ export default async ({ req, res, log, error }) => {
 
     // Initialize Appwrite client
     log("[DEBUG] Initializing Appwrite client");
-    log(`[DEBUG] APPWRITE_ENDPOINT: ${process.env.APPWRITE_ENDPOINT}`);
-    log(
-      `[DEBUG] APPWRITE_FUNCTION_PROJECT_ID: ${process.env.APPWRITE_FUNCTION_PROJECT_ID}`,
-    );
+    
+    // Use endpoints from .env.local (EXPO_PUBLIC_* variables)
+    const APPWRITE_ENDPOINT = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT;
+    const APPWRITE_PROJECT_ID = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID;
+    const APPWRITE_DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID;
+    
+    log(`[DEBUG] APPWRITE_ENDPOINT: ${APPWRITE_ENDPOINT}`);
+    log(`[DEBUG] APPWRITE_PROJECT_ID: ${APPWRITE_PROJECT_ID}`);
+    log(`[DEBUG] APPWRITE_DATABASE_ID: ${APPWRITE_DATABASE_ID}`);
     log(`[DEBUG] GROQ_API_KEY exists: ${!!process.env.GROQ_API_KEY}`);
 
     const client = new Client()
-      .setEndpoint(process.env.APPWRITE_ENDPOINT)
-      .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-      .setKey(process.env.APPWRITE_API_KEY);
+      .setEndpoint(APPWRITE_ENDPOINT)
+      .setProject(APPWRITE_PROJECT_ID)
+      .setKey(process.env.APPWRITE_SECRET_KEY);
 
     const databases = new Databases(client);
     log("[DEBUG] Appwrite client initialized");
@@ -73,7 +78,7 @@ export default async ({ req, res, log, error }) => {
           `[DEBUG] Storing question ${i + 1}: ${question.question_text.substring(0, 50)}...`,
         );
         const doc = await databases.createDocument(
-          process.env.APPWRITE_DATABASE_ID,
+          APPWRITE_DATABASE_ID,
           "QUESTIONS",
           ID.unique(),
           question,

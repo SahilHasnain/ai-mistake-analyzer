@@ -12,8 +12,16 @@ import { Client, Databases, ID, Query } from "node-appwrite";
 
 export default async ({ req, res, log, error }) => {
   try {
-    // Parse request body
-    const payload = JSON.parse(req.body || "{}");
+    // Handle both string and object bodies
+    let bodyStr =
+      typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    log(`[DEBUG] Request body: ${bodyStr}`);
+
+    // Parse request body - handle if already an object
+    const payload =
+      typeof req.body === "string"
+        ? JSON.parse(req.body || "{}")
+        : req.body || {};
     const { userId } = payload;
 
     if (!userId) {
@@ -29,16 +37,25 @@ export default async ({ req, res, log, error }) => {
     log(`Analyzing patterns for user ${userId}`);
 
     // Initialize Appwrite client
+    // Use endpoints from .env.local (EXPO_PUBLIC_* variables)
+    const APPWRITE_ENDPOINT = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT;
+    const APPWRITE_PROJECT_ID = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID;
+    const APPWRITE_DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID;
+    
+    log(`[DEBUG] Using APPWRITE_ENDPOINT: ${APPWRITE_ENDPOINT}`);
+    log(`[DEBUG] Using APPWRITE_PROJECT_ID: ${APPWRITE_PROJECT_ID}`);
+    log(`[DEBUG] Using APPWRITE_DATABASE_ID: ${APPWRITE_DATABASE_ID}`);
+
     const client = new Client()
-      .setEndpoint(process.env.APPWRITE_ENDPOINT)
-      .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-      .setKey(process.env.APPWRITE_API_KEY);
+      .setEndpoint(APPWRITE_ENDPOINT)
+      .setProject(APPWRITE_PROJECT_ID)
+      .setKey(process.env.APPWRITE_SECRET_KEY);
 
     const databases = new Databases(client);
 
     // Fetch user's responses
     const responsesData = await databases.listDocuments(
-      process.env.APPWRITE_DATABASE_ID,
+      APPWRITE_DATABASE_ID,
       "USER_RESPONSES",
       [Query.equal("user_id", userId), Query.limit(500)],
     );
@@ -77,7 +94,7 @@ export default async ({ req, res, log, error }) => {
     for (const pattern of patterns) {
       try {
         const doc = await databases.createDocument(
-          process.env.APPWRITE_DATABASE_ID,
+          APPWRITE_DATABASE_ID,
           "DETECTED_PATTERNS",
           ID.unique(),
           {
@@ -133,7 +150,7 @@ async function fetchQuestions(databases, questionIds) {
 
     try {
       const result = await databases.listDocuments(
-        process.env.APPWRITE_DATABASE_ID,
+        process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID,
         "QUESTIONS",
         [Query.equal("$id", batch)],
       );
