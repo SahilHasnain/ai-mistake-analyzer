@@ -185,7 +185,7 @@ export default function TestSelection() {
         </TouchableOpacity>
 
         {loading && (
-          <View className="p-4 mt-4 border border-yellow-200 bg-yellow-50 rounded-xl">
+          <View className="p-4 mt-4 border border-yellow-200 bg-yellow-50 rounded-xl mb-8">
             <Text className="text-sm text-center text-yellow-800">
               ⏳ AI is generating your questions... This may take a moment.
             </Text>

@@ -5,15 +5,9 @@
 
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useTestStore } from "../../store/testStore";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTestStore } from "../../store/testStore";
 
 export default function TestTaking() {
   const router = useRouter();
@@ -36,7 +30,7 @@ export default function TestTaking() {
   useEffect(() => {
     if (!currentTest) {
       Alert.alert("No Active Test", "Please start a new test first.", [
-        { text: "OK", onPress: () => router.replace("/test/index") },
+        { text: "OK", onPress: () => router.replace("/test") },
       ]);
     }
   }, [currentTest, router]);

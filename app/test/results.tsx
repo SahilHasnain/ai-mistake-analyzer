@@ -6,13 +6,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TestResults() {
   const router = useRouter();
@@ -160,7 +155,7 @@ export default function TestResults() {
             • Take more tests to improve your performance
           </Text>
           <Text className="text-blue-700 text-sm">
-            • Use the "Analyze" button on the dashboard to detect mistake
+            • Use the "Analyze&quot; button on the dashboard to detect mistake
             patterns
           </Text>
         </View>
@@ -168,7 +163,7 @@ export default function TestResults() {
         {/* Action Buttons */}
         <View className="gap-3 mb-6">
           <TouchableOpacity
-            onPress={() => router.replace("/test/index")}
+            onPress={() => router.replace("/test")}
             className="bg-purple-600 rounded-xl py-4"
           >
             <Text className="text-white text-center font-bold text-lg">

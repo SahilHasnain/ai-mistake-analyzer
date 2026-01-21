@@ -94,11 +94,21 @@ export default async ({ req, res, log, error }) => {
     log(`[DEBUG] Stored ${storedQuestions.length} questions in database`);
     log(`Stored ${storedQuestions.length} questions in database`);
 
-    return res.json({
-      success: true,
-      questions: storedQuestions,
-      count: storedQuestions.length,
-    });
+    // Set HTTP cache headers for Appwrite function caching
+    // Cache for 15 minutes (900 seconds)
+    return res.json(
+      {
+        success: true,
+        questions: storedQuestions,
+        count: storedQuestions.length,
+      },
+      200,
+      {
+        "Cache-Control": "public, max-age=900, s-maxage=900",
+        "CDN-Cache-Control": "public, max-age=900",
+        Vary: "Accept-Encoding",
+      },
+    );
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     error(`Error in generate-questions function: ${errorMessage}`);
