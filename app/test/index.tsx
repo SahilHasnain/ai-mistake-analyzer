@@ -8,12 +8,12 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTestStore } from "../../store/testStore";
 import { getUserId } from "../../utils/getUserId";
 
@@ -80,13 +80,13 @@ export default function TestSelection() {
         <View className="flex-row items-center mb-2">
           <TouchableOpacity
             onPress={() => router.back()}
-            className="mr-4 p-2 -ml-2"
+            className="p-2 mr-4 -ml-2"
           >
-            <Text className="text-white text-2xl">←</Text>
+            <Text className="text-2xl text-white">←</Text>
           </TouchableOpacity>
-          <Text className="text-white text-3xl font-bold">New Test</Text>
+          <Text className="text-3xl font-bold text-white">New Test</Text>
         </View>
-        <Text className="text-purple-100 text-sm">
+        <Text className="text-sm text-purple-100">
           Select subject and number of questions
         </Text>
       </LinearGradient>
@@ -94,7 +94,7 @@ export default function TestSelection() {
       <ScrollView className="flex-1 px-6 py-6">
         {/* Subject Selection */}
         <View className="mb-8">
-          <Text className="text-lg font-bold text-gray-800 mb-4">
+          <Text className="mb-4 text-lg font-bold text-gray-800">
             Select Subject
           </Text>
           <View className="flex-row flex-wrap gap-3">
@@ -112,7 +112,7 @@ export default function TestSelection() {
                     : "bg-white border-2 border-gray-200"
                 }`}
               >
-                <Text className="text-3xl mb-2">{subject.icon}</Text>
+                <Text className="mb-2 text-3xl">{subject.icon}</Text>
                 <Text
                   className={`text-base font-semibold ${
                     selectedSubject === subject.id
@@ -129,7 +129,7 @@ export default function TestSelection() {
 
         {/* Question Count Selection */}
         <View className="mb-8">
-          <Text className="text-lg font-bold text-gray-800 mb-4">
+          <Text className="mb-4 text-lg font-bold text-gray-800">
             Number of Questions
           </Text>
           <View className="flex-row flex-wrap gap-3">
@@ -156,17 +156,17 @@ export default function TestSelection() {
         </View>
 
         {/* Test Info */}
-        <View className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-          <Text className="text-blue-800 text-sm mb-2">
+        <View className="p-4 mb-6 border border-blue-200 bg-blue-50 rounded-xl">
+          <Text className="mb-2 text-sm text-blue-800">
             📝 <Text className="font-semibold">Test Details:</Text>
           </Text>
-          <Text className="text-blue-700 text-sm">
+          <Text className="text-sm text-blue-700">
             • Subject: {selectedSubject}
           </Text>
-          <Text className="text-blue-700 text-sm">
+          <Text className="text-sm text-blue-700">
             • Questions: {questionCount}
           </Text>
-          <Text className="text-blue-700 text-sm">
+          <Text className="text-sm text-blue-700">
             • Estimated time: ~{questionCount * 1.5} minutes
           </Text>
         </View>
@@ -179,14 +179,14 @@ export default function TestSelection() {
             loading ? "bg-purple-300" : "bg-purple-600"
           }`}
         >
-          <Text className="text-white text-center font-bold text-lg">
+          <Text className="text-lg font-bold text-center text-white">
             {loading ? "Generating Questions..." : "Start Test"}
           </Text>
         </TouchableOpacity>
 
         {loading && (
-          <View className="mt-4 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-            <Text className="text-yellow-800 text-sm text-center">
+          <View className="p-4 mt-4 border border-yellow-200 bg-yellow-50 rounded-xl">
+            <Text className="text-sm text-center text-yellow-800">
               ⏳ AI is generating your questions... This may take a moment.
             </Text>
           </View>

@@ -5,7 +5,6 @@ import {
   Alert,
   Animated,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -16,6 +15,7 @@ import PatternCard from "../components/PatternCard";
 import StatsGrid from "../components/StatsGrid";
 import { usePatternStore } from "../store/patternStore";
 import { getUserId } from "../utils/getUserId";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const router = useRouter();
@@ -182,12 +182,12 @@ export default function Index() {
         className="px-6 pt-6 pb-8"
       >
         {/* App Title, Subtitle, and Analyze Button */}
-        <View className="flex-row justify-between items-start mb-4">
+        <View className="flex-row items-start justify-between mb-4">
           <View className="flex-1">
-            <Text className="text-white text-3xl font-bold mb-2">
+            <Text className="mb-2 text-3xl font-bold text-white">
               Pattern Analyzer
             </Text>
-            <Text className="text-purple-100 text-sm">
+            <Text className="text-sm text-purple-100">
               AI-powered insights for NEET preparation
             </Text>
           </View>
@@ -216,9 +216,9 @@ export default function Index() {
             style={{
               transform: [{ scale: pulseAnim }],
             }}
-            className="w-2 h-2 bg-green-400 rounded-full mr-2"
+            className="w-2 h-2 mr-2 bg-green-400 rounded-full"
           />
-          <Text className="text-white text-xs font-medium">
+          <Text className="text-xs font-medium text-white">
             AI Analysis Ready
           </Text>
         </View>
@@ -233,14 +233,14 @@ export default function Index() {
       >
         {/* Alert Banner for Detected Patterns */}
         {patterns.length > 0 && (
-          <View className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex-row items-center">
-            <Text className="text-2xl mr-3">⚠️</Text>
+          <View className="flex-row items-center p-4 mb-6 border border-red-200 bg-red-50 rounded-xl">
+            <Text className="mr-3 text-2xl">⚠️</Text>
             <View className="flex-1">
-              <Text className="text-red-800 font-semibold text-sm mb-1">
+              <Text className="mb-1 text-sm font-semibold text-red-800">
                 {patterns.length} Pattern{patterns.length === 1 ? "" : "s"}{" "}
                 Detected
               </Text>
-              <Text className="text-red-600 text-xs">
+              <Text className="text-xs text-red-600">
                 Review your mistake patterns below to improve your performance
               </Text>
             </View>
@@ -260,15 +260,15 @@ export default function Index() {
         {/* Take Test Button */}
         <TouchableOpacity
           onPress={() => router.push("/test")}
-          className="bg-purple-600 rounded-xl py-4 px-6 mb-6 flex-row items-center justify-center"
+          className="flex-row items-center justify-center px-6 py-4 mb-6 bg-purple-600 rounded-xl"
         >
-          <Text className="text-white text-lg font-bold mr-2">📝</Text>
-          <Text className="text-white text-lg font-bold">Take a Test</Text>
+          <Text className="mr-2 text-lg font-bold text-white">📝</Text>
+          <Text className="text-lg font-bold text-white">Take a Test</Text>
         </TouchableOpacity>
 
         {/* Patterns Section */}
         <View className="mb-6">
-          <Text className="text-xl font-bold text-gray-800 mb-4">
+          <Text className="mb-4 text-xl font-bold text-gray-800">
             Detected Patterns
           </Text>
 
@@ -277,12 +277,12 @@ export default function Index() {
 
           {/* Empty State */}
           {!loading && patterns.length === 0 && (
-            <View className="bg-white rounded-2xl p-8 items-center">
-              <Text className="text-6xl mb-4">🎯</Text>
-              <Text className="text-lg font-semibold text-gray-800 mb-2">
+            <View className="items-center p-8 bg-white rounded-2xl">
+              <Text className="mb-4 text-6xl">🎯</Text>
+              <Text className="mb-2 text-lg font-semibold text-gray-800">
                 No Patterns Detected Yet
               </Text>
-              <Text className="text-sm text-gray-600 text-center">
+              <Text className="text-sm text-center text-gray-600">
                 Complete some tests and run AI analysis to discover your mistake
                 patterns
               </Text>

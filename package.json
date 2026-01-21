@@ -8,7 +8,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "setup:appwrite": "node scripts/setup-appwrite-collections.js",
+    "setup:appwrite": "node scripts/setup-all-collections.js",
     "cleanup:appwrite": "node scripts/cleanup-appwrite-collections.js"
   },
   "dependencies": {

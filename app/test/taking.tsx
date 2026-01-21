@@ -7,13 +7,13 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useTestStore } from "../../store/testStore";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TestTaking() {
   const router = useRouter();
@@ -136,18 +136,18 @@ export default function TestTaking() {
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View className="px-6 py-4 border-b border-gray-200">
-        <View className="flex-row justify-between items-center mb-3">
+        <View className="flex-row items-center justify-between mb-3">
           <Text className="text-lg font-bold text-gray-800">
             Question {currentTest.current_question + 1} of{" "}
             {currentTest.total_questions}
           </Text>
           <TouchableOpacity onPress={handleQuit} className="px-3 py-1">
-            <Text className="text-red-600 font-semibold">Quit</Text>
+            <Text className="font-semibold text-red-600">Quit</Text>
           </TouchableOpacity>
         </View>
 
         {/* Progress Bar */}
-        <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <View className="h-2 overflow-hidden bg-gray-200 rounded-full">
           <View
             className="h-full bg-purple-600"
             style={{ width: `${progress}%` }}
@@ -158,8 +158,8 @@ export default function TestTaking() {
       <ScrollView className="flex-1 px-6 py-6">
         {/* Subject Badge */}
         <View className="mb-4">
-          <View className="bg-purple-100 px-3 py-1 rounded-full self-start">
-            <Text className="text-purple-700 text-xs font-semibold">
+          <View className="self-start px-3 py-1 bg-purple-100 rounded-full">
+            <Text className="text-xs font-semibold text-purple-700">
               {currentQuestion.subject}
             </Text>
           </View>
@@ -167,7 +167,7 @@ export default function TestTaking() {
 
         {/* Question */}
         <View className="mb-6">
-          <Text className="text-xl font-bold text-gray-800 leading-7">
+          <Text className="text-xl font-bold leading-7 text-gray-800">
             {currentQuestion.question_text}
           </Text>
         </View>
@@ -263,7 +263,7 @@ export default function TestTaking() {
               {isCorrect ? "✓ Correct!" : "✗ Incorrect"}
             </Text>
             {!isCorrect && (
-              <Text className="text-red-700 text-sm">
+              <Text className="text-sm text-red-700">
                 The correct answer is {currentQuestion.correct_answer}
               </Text>
             )}
@@ -281,16 +281,16 @@ export default function TestTaking() {
               !selectedAnswer || submitting ? "bg-gray-300" : "bg-purple-600"
             }`}
           >
-            <Text className="text-white text-center font-bold text-lg">
+            <Text className="text-lg font-bold text-center text-white">
               {submitting ? "Submitting..." : "Submit Answer"}
             </Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             onPress={handleNext}
-            className="bg-purple-600 rounded-xl py-4"
+            className="py-4 bg-purple-600 rounded-xl"
           >
-            <Text className="text-white text-center font-bold text-lg">
+            <Text className="text-lg font-bold text-center text-white">
               {isLastQuestion ? "View Results" : "Next Question →"}
             </Text>
           </TouchableOpacity>
