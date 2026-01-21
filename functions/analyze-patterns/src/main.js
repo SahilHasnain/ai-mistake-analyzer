@@ -41,7 +41,7 @@ export default async ({ req, res, log, error }) => {
     const APPWRITE_ENDPOINT = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT;
     const APPWRITE_PROJECT_ID = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID;
     const APPWRITE_DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID;
-    
+
     log(`[DEBUG] Using APPWRITE_ENDPOINT: ${APPWRITE_ENDPOINT}`);
     log(`[DEBUG] Using APPWRITE_PROJECT_ID: ${APPWRITE_PROJECT_ID}`);
     log(`[DEBUG] Using APPWRITE_DATABASE_ID: ${APPWRITE_DATABASE_ID}`);
@@ -292,22 +292,22 @@ function createAnalysisPrompt(data) {
 
 **Subject Performance:**
 ${Object.entries(data.subjectStats)
-  .map(
-    ([subject, stats]) =>
-      `- ${subject}: ${stats.incorrect}/${stats.total} incorrect (${((stats.incorrect / stats.total) * 100).toFixed(1)}%)`,
-  )
-  .join("\n")}
+      .map(
+        ([subject, stats]) =>
+          `- ${subject}: ${stats.incorrect}/${stats.total} incorrect (${((stats.incorrect / stats.total) * 100).toFixed(1)}%)`,
+      )
+      .join("\n")}
 
 **Incorrect Answers (Sample):**
 ${data.incorrectAnswers
-  .slice(0, 20)
-  .map(
-    (ans, i) =>
-      `${i + 1}. [${ans.subject}] ${ans.questionText.substring(0, 100)}...
+      .slice(0, 20)
+      .map(
+        (ans, i) =>
+          `${i + 1}. [${ans.subject}] ${ans.questionText.substring(0, 100)}...
    - Selected: ${ans.selectedAnswer}, Correct: ${ans.correctAnswer}
    - Time: ${ans.timeTaken}s, Position: ${ans.questionPosition}, Topic: ${ans.topic}`,
-  )
-  .join("\n\n")}
+      )
+      .join("\n\n")}
 
 **Task:**
 Identify 2-4 behavioral mistake patterns (NOT content gaps). Look for:

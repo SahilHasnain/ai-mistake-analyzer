@@ -35,12 +35,12 @@ export default async ({ req, res, log, error }) => {
 
     // Initialize Appwrite client
     log("[DEBUG] Initializing Appwrite client");
-    
+
     // Use endpoints from .env.local (EXPO_PUBLIC_* variables)
     const APPWRITE_ENDPOINT = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT;
     const APPWRITE_PROJECT_ID = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID;
     const APPWRITE_DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID;
-    
+
     log(`[DEBUG] APPWRITE_ENDPOINT: ${APPWRITE_ENDPOINT}`);
     log(`[DEBUG] APPWRITE_PROJECT_ID: ${APPWRITE_PROJECT_ID}`);
     log(`[DEBUG] APPWRITE_DATABASE_ID: ${APPWRITE_DATABASE_ID}`);
