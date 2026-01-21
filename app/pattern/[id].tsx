@@ -1,14 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ConfidenceBadge from "../../components/ConfidenceBadge";
 import EvidenceList from "../../components/EvidenceList";
 import SubjectTags from "../../components/SubjectTags";
@@ -117,25 +111,27 @@ export default function PatternDetail() {
         </View>
 
         {/* Recommendation Box */}
-        <LinearGradient
-          colors={["#667eea", "#764ba2"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className="rounded-xl p-5 mb-6"
-        >
-          <View className="flex-row items-center mb-3">
-            <Text className="text-2xl mr-2">💡</Text>
-            <Text className="text-white font-bold text-lg">
-              AI Recommendation
+        <View className="rounded-xl overflow-hidden mb-6">
+          <LinearGradient
+            colors={["#667eea", "#764ba2"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            className="p-5"
+          >
+            <View className="flex-row items-center mb-3">
+              <Text className="text-2xl mr-2">💡</Text>
+              <Text className="text-white font-bold text-lg">
+                AI Recommendation
+              </Text>
+            </View>
+            <Text className="text-white text-base leading-6">
+              {pattern.recommendation}
             </Text>
-          </View>
-          <Text className="text-white text-base leading-6">
-            {pattern.recommendation}
-          </Text>
-        </LinearGradient>
+          </LinearGradient>
+        </View>
 
         {/* Action Buttons */}
-        <View className="gap-3 mb-6">
+        <View className="gap-3 mb-8">
           {/* Practice Similar Questions Button */}
           <TouchableOpacity
             onPress={handlePractice}
