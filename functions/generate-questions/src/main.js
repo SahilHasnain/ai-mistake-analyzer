@@ -15,10 +15,13 @@ import { Client, Databases, ID } from "node-appwrite";
 export default async ({ req, res, log, error }) => {
   try {
     log("[DEBUG] Function invoked");
-    log(`[DEBUG] Request body: ${req.body}`);
+    
+    // Handle both string and object bodies
+    let bodyStr = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    log(`[DEBUG] Request body: ${bodyStr}`);
 
-    // Parse request body
-    const payload = JSON.parse(req.body || "{}");
+    // Parse request body - handle if already an object
+    const payload = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
     const { subject = "Mixed", count = 10, difficulty = "Medium" } = payload;
 
     log(
