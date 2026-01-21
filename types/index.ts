@@ -52,3 +52,33 @@ export interface UserResponse {
   test_duration_so_far: number; // Minutes elapsed in test
   subject?: string; // Optional subject ("Physics" | "Chemistry" | "Biology")
 }
+
+/**
+ * Question interface for NEET test questions
+ * Stored in Appwrite QUESTIONS collection
+ */
+export interface Question {
+  $id: string; // Appwrite document ID
+  question_text: string; // The question text
+  option_a: string; // Option A
+  option_b: string; // Option B
+  option_c: string; // Option C
+  option_d: string; // Option D
+  correct_answer: "A" | "B" | "C" | "D"; // Correct answer
+  subject: "Physics" | "Chemistry" | "Biology"; // NEET subject
+  difficulty: "Easy" | "Medium" | "Hard"; // Difficulty level
+  topic?: string; // Optional topic/chapter
+}
+
+/**
+ * Test Session interface for tracking active tests
+ */
+export interface TestSession {
+  test_id: string; // Unique test session ID
+  user_id: string; // User taking the test
+  subject: "Physics" | "Chemistry" | "Biology" | "Mixed"; // Test subject
+  total_questions: number; // Total questions in test
+  current_question: number; // Current question index (0-based)
+  start_time: number; // Test start timestamp
+  questions: Question[]; // Array of questions in this test
+}

@@ -39,9 +39,30 @@ export default function Index() {
 
   // Fetch data on component mount
   useEffect(() => {
-    const userId = "test-user-123"; // TODO: Replace with actual user ID from auth
-    fetchPatterns(userId);
-    fetchStats(userId);
+    const loadData = async () => {
+      try {
+        const userId = await getUserId();
+        await fetchPatterns(userId);
+      } catch (error) {
+        console.error("Failed to load patterns:", error);
+        Alert.alert(
+          "Error Loading Patterns",
+          error instanceof Error
+            ? error.message
+            : "Unable to load patterns. Please check your connection and try again.",
+        );
+      }
+
+      try {
+        const userId = await getUserId();
+        await fetchStats(userId);
+      } catch (error) {
+        console.error("Failed to load stats:", error);
+        // Stats failure is less critical, just log it
+      }
+    };
+
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -66,11 +87,18 @@ export default function Index() {
   // Handle pull-to-refresh
   const onRefresh = async () => {
     setRefreshing(true);
+    const userId = await getUserId();
+
     try {
-      const userId = "test-user-123"; // TODO: Replace with actual user ID from auth
       await Promise.all([fetchPatterns(userId), fetchStats(userId)]);
     } catch (error) {
       console.error("Error refreshing data:", error);
+      Alert.alert(
+        "Refresh Failed",
+        error instanceof Error
+          ? error.message
+          : "Unable to refresh data. Please try again.",
+      );
     } finally {
       setRefreshing(false);
     }
@@ -90,16 +118,19 @@ export default function Index() {
           text: "Analyze",
           onPress: async () => {
             try {
-              const userId = "test-user-123"; // TODO: Replace with actual user ID from auth
+              const userId = await getUserId();
               await analyzePatterns(userId);
               Alert.alert(
                 "Analysis Complete",
                 "Your patterns have been updated with the latest insights.",
               );
             } catch (error) {
+              console.error("Analysis error:", error);
               Alert.alert(
                 "Analysis Failed",
-                "Unable to analyze patterns. Please try again later.",
+                error instanceof Error
+                  ? error.message
+                  : "Unable to analyze patterns. Please try again later.",
               );
             }
           },
@@ -124,10 +155,14 @@ export default function Index() {
           onPress: async () => {
             try {
               await resolvePattern(patternId);
+              Alert.alert("Success", "Pattern marked as resolved.");
             } catch (error) {
+              console.error("Resolve error:", error);
               Alert.alert(
                 "Error",
-                "Unable to mark pattern as resolved. Please try again.",
+                error instanceof Error
+                  ? error.message
+                  : "Unable to mark pattern as resolved. Please try again.",
               );
             }
           },

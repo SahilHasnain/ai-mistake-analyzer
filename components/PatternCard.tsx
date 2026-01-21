@@ -2,6 +2,7 @@ import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Pattern } from "../types";
 import ConfidenceBadge from "./ConfidenceBadge";
+import SubjectTags from "./SubjectTags";
 
 interface PatternCardProps {
   pattern: Pattern;
@@ -46,6 +47,13 @@ export default function PatternCard({
           {pattern.evidence.length === 1 ? "item" : "items"}
         </Text>
       </View>
+
+      {/* Subject Tags */}
+      {pattern.subject_distribution && (
+        <View className="mb-3">
+          <SubjectTags subjectDistribution={pattern.subject_distribution} />
+        </View>
+      )}
 
       {/* Recommendation Preview */}
       <View className="bg-purple-50 rounded-lg p-3 mb-3">

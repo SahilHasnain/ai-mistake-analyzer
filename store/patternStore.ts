@@ -48,14 +48,16 @@ export const usePatternStore = create<PatternStore>((set, get) => ({
    * @param userId - User identifier
    */
   fetchPatterns: async (userId: string) => {
+    set({ loading: true });
     try {
-      set({ loading: true });
       const patterns = await getUserPatterns(userId);
-      set({ patterns, loading: false });
+      set({ patterns });
     } catch (error) {
       console.error("Error in fetchPatterns:", error);
-      set({ loading: false });
+      set({ patterns: [] });
       throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -69,6 +71,14 @@ export const usePatternStore = create<PatternStore>((set, get) => ({
       set({ stats });
     } catch (error) {
       console.error("Error in fetchStats:", error);
+      // Keep default stats on error
+      set({
+        stats: {
+          totalQuestions: 0,
+          mistakes: 0,
+          accuracy: "0.0",
+        },
+      });
       throw error;
     }
   },
@@ -80,13 +90,12 @@ export const usePatternStore = create<PatternStore>((set, get) => ({
   analyzePatterns: async (userId: string) => {
     try {
       set({ analyzing: true });
-      await analyzePatternService(userId);
-
-      // Wait for async processing (5 seconds as per design)
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const result = await analyzePatternService(userId);
 
       // Refresh patterns list after analysis
       await get().fetchPatterns(userId);
+
+      return result;
     } catch (error) {
       console.error("Error in analyzePatterns:", error);
       throw error;

@@ -33,6 +33,16 @@ interface AppwritePattern extends Omit<Pattern, "evidence"> {
  */
 export async function getUserPatterns(userId: string): Promise<Pattern[]> {
   try {
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    if (!DATABASE_ID || !PATTERNS_COLLECTION_ID) {
+      throw new Error(
+        "Database configuration is missing. Please check environment variables.",
+      );
+    }
+
     const response = await databases.listDocuments(
       DATABASE_ID,
       PATTERNS_COLLECTION_ID,
@@ -63,7 +73,10 @@ export async function getUserPatterns(userId: string): Promise<Pattern[]> {
     return patterns;
   } catch (error) {
     console.error("Error fetching user patterns:", error);
-    throw error;
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch patterns: ${error.message}`);
+    }
+    throw new Error("Failed to fetch patterns due to an unknown error");
   }
 }
 
@@ -74,6 +87,16 @@ export async function getUserPatterns(userId: string): Promise<Pattern[]> {
  */
 export async function getUserStats(userId: string): Promise<Stats> {
   try {
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    if (!DATABASE_ID || !RESPONSES_COLLECTION_ID) {
+      throw new Error(
+        "Database configuration is missing. Please check environment variables.",
+      );
+    }
+
     const response = await databases.listDocuments(
       DATABASE_ID,
       RESPONSES_COLLECTION_ID,
@@ -97,20 +120,43 @@ export async function getUserStats(userId: string): Promise<Stats> {
     };
   } catch (error) {
     console.error("Error fetching user stats:", error);
-    throw error;
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch statistics: ${error.message}`);
+    }
+    throw new Error("Failed to fetch statistics due to an unknown error");
   }
 }
 
 /**
  * Trigger AI pattern analysis via Appwrite Function
  * @param userId - User identifier
- * @returns Promise with response
+ * @returns Promise with analysis results
  */
-export async function analyzePatterns(userId: string): Promise<Response> {
+export async function analyzePatterns(userId: string): Promise<{
+  success: boolean;
+  patterns: any[];
+  count: number;
+}> {
   try {
-    const functionUrl = process.env.EXPO_PUBLIC_APPWRITE_FUNCTION_URL || "";
-    const endpoint = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT || "";
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    const functionUrl =
+      process.env.EXPO_PUBLIC_ANALYZE_PATTERNS_FUNCTION_URL || "";
     const projectId = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID || "";
+
+    if (!functionUrl) {
+      throw new Error(
+        "Analyze patterns function URL is not configured. Please check environment variables.",
+      );
+    }
+
+    if (!projectId) {
+      throw new Error(
+        "Appwrite Project ID is not configured. Please check environment variables.",
+      );
+    }
 
     const response = await fetch(functionUrl, {
       method: "POST",
@@ -122,13 +168,25 @@ export async function analyzePatterns(userId: string): Promise<Response> {
     });
 
     if (!response.ok) {
-      throw new Error(`Analysis request failed: ${response.statusText}`);
+      const errorText = await response.text().catch(() => "Unknown error");
+      throw new Error(
+        `Analysis request failed (${response.status}): ${errorText}`,
+      );
     }
 
-    return response;
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || "Pattern analysis failed");
+    }
+
+    return data;
   } catch (error) {
     console.error("Error triggering pattern analysis:", error);
-    throw error;
+    if (error instanceof Error) {
+      throw new Error(`Failed to analyze patterns: ${error.message}`);
+    }
+    throw new Error("Failed to analyze patterns due to an unknown error");
   }
 }
 
@@ -139,6 +197,16 @@ export async function analyzePatterns(userId: string): Promise<Response> {
  */
 export async function resolvePattern(patternId: string): Promise<Pattern> {
   try {
+    if (!patternId) {
+      throw new Error("Pattern ID is required");
+    }
+
+    if (!DATABASE_ID || !PATTERNS_COLLECTION_ID) {
+      throw new Error(
+        "Database configuration is missing. Please check environment variables.",
+      );
+    }
+
     const response = await databases.updateDocument(
       DATABASE_ID,
       PATTERNS_COLLECTION_ID,
@@ -167,6 +235,9 @@ export async function resolvePattern(patternId: string): Promise<Pattern> {
     };
   } catch (error) {
     console.error("Error resolving pattern:", error);
-    throw error;
+    if (error instanceof Error) {
+      throw new Error(`Failed to resolve pattern: ${error.message}`);
+    }
+    throw new Error("Failed to resolve pattern due to an unknown error");
   }
 }

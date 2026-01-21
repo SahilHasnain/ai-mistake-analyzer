@@ -1,0 +1,16 @@
+{
+  "name": "analyze-patterns",
+  "version": "1.0.0",
+  "description": "Analyze user test responses to detect mistake patterns using AI",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "node-appwrite": "^14.1.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  }
+}

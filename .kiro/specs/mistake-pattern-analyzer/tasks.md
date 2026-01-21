@@ -135,47 +135,48 @@
   - Handle errors with error alert
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 8. Build Pattern Detail screen (app/pattern/[id].tsx)
-- [ ] 8.1 Create basic Pattern Detail layout
+- [x] 8. Build Pattern Detail screen (app/pattern/[id].tsx)
+
+- [x] 8.1 Create basic Pattern Detail layout
   - Create app/pattern/[id].tsx file
   - Set up SafeAreaView with white background
   - Add header with back button and "Pattern Details" title
   - Implement back navigation using router.back()
   - _Requirements: 4.1, 4.5, 9.3_
 
-- [ ] 8.2 Display pattern information
+- [x] 8.2 Display pattern information
   - Get pattern data from route params and parse JSON
   - Display pattern title with large bold text
   - Show ConfidenceBadge component
   - Display full description text
   - _Requirements: 4.2, 4.3_
 
-- [ ] 8.3 Add evidence section
+- [x] 8.3 Add evidence section
   - Use EvidenceList component to display evidence items
   - Style evidence section with gray background
   - Add section title "Evidence from your tests"
   - _Requirements: 4.3_
 
-- [ ] 8.4 Add recommendation box
+- [x] 8.4 Add recommendation box
   - Display recommendation in gradient purple box
   - Add lightbulb icon and "AI Recommendation" title
   - Style text in white with good readability
   - _Requirements: 4.4_
 
-- [ ] 8.5 Add action buttons
+- [x] 8.5 Add action buttons
   - Add "Practice Similar Questions" button (placeholder functionality)
   - Add "Mark as Resolved" button with resolve handler
   - Style buttons with proper spacing
   - _Requirements: 4.6, 5.1_
 
-- [ ] 9. Add subject tags display (optional enhancement)
+- [x] 9. Add subject tags display (optional enhancement)
   - Check if pattern has subject_distribution data
   - Display subject tags (Physics, Chemistry, Biology) with mistake counts
   - Style tags with gray background and rounded corners
   - Make tags scrollable horizontally if needed
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 10. Implement error handling across the app
+- [x] 10. Implement error handling across the app
   - Add try-catch blocks in all store actions
   - Log errors to console for debugging
   - Display user-friendly error messages via Alert for user-initiated actions
@@ -183,12 +184,12 @@
   - Test error scenarios (network failures, invalid data)
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 11. Set up environment variables
+- [x] 11. Set up environment variables
   - Create .env file (add to .gitignore)
   - Add EXPO_PUBLIC_APPWRITE_ENDPOINT variable
   - Add EXPO_PUBLIC_APPWRITE_PROJECT_ID variable
   - Add EXPO_PUBLIC_APPWRITE_DATABASE_ID variable
-  - Add EXPO_PUBLIC_APPWRITE_FUNCTION_ID variable for pattern analysis
+  - Add EXPO_PUBLIC_APPWRITE_FUNCTION_URL variable for pattern analysis
   - Document environment variables in README
   - _Requirements: All Appwrite integration requirements_
 
