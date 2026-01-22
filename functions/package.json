@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
-    "build": "echo 'no build scripts'"
+    "build": "node init && echo 'no build scripts'"
   },
   "dependencies": {
     "node-appwrite": "^21.1.0"
