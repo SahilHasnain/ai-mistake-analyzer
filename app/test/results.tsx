@@ -3,22 +3,25 @@
  * Shows test performance and statistics
  */
 
+import { getUserId } from "@/utils/getUserId";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { usePatternStore } from "../../store/patternStore";
 import { useTestStore } from "../../store/testStore";
 
 export default function TestResults() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { resetTest } = useTestStore();
+  const { analyzePatterns, analyzing } = usePatternStore();
 
   // Clear test state when results page loads
   useEffect(() => {
     resetTest();
-  }, []);
+  }, [resetTest]);
 
   // Parse results from route params
   const results = JSON.parse(params.results as string);
@@ -41,6 +44,38 @@ export default function TestResults() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}m ${secs}s`;
+  };
+
+  const handleAnalyze = () => {
+    Alert.alert(
+      "Analyze Patterns",
+      "This will analyze your recent test data using AI to detect mistake patterns. This may take a few moments.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Analyze",
+          onPress: async () => {
+            try {
+              const userId = await getUserId();
+              await analyzePatterns(userId);
+              // Directly redirect to dashboard on success
+              router.replace("/");
+            } catch (error) {
+              console.error("Analysis error:", error);
+              Alert.alert(
+                "Analysis Failed",
+                error instanceof Error
+                  ? error.message
+                  : "Unable to analyze patterns. Please try again later.",
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -149,7 +184,7 @@ export default function TestResults() {
         </View>
 
         {/* Recommendations */}
-        <View className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+        <View className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
           <Text className="text-blue-800 font-semibold mb-2">
             💡 What's Next?
           </Text>
@@ -162,30 +197,74 @@ export default function TestResults() {
             • Take more tests to improve your performance
           </Text>
           <Text className="text-blue-700 text-sm">
-            • Use the "Analyze&quot; button on the dashboard to detect mistake
-            patterns
+            • Use AI analysis to detect mistake patterns
           </Text>
         </View>
 
-        {/* Action Buttons */}
-        <View className="gap-3 mb-6">
-          <TouchableOpacity
-            onPress={() => router.replace("/test")}
-            className="bg-purple-600 rounded-xl py-4"
-          >
-            <Text className="text-white text-center font-bold text-lg">
-              Take Another Test
-            </Text>
-          </TouchableOpacity>
+        {/* Action Buttons Grid */}
+        <View className="mb-6">
+          <Text className="text-lg font-bold text-gray-800 mb-3">
+            Quick Actions
+          </Text>
 
-          <TouchableOpacity
-            onPress={() => router.replace("/")}
-            className="bg-white border-2 border-purple-600 rounded-xl py-4"
-          >
-            <Text className="text-purple-600 text-center font-bold text-lg">
-              Back to Dashboard
-            </Text>
-          </TouchableOpacity>
+          {/* 2x2 Grid */}
+          <View className="flex-row flex-wrap gap-3">
+            {/* Review Answers */}
+            {results.testData && (
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/test/review",
+                    params: {
+                      testData: JSON.stringify(results.testData),
+                    },
+                  })
+                }
+                className="flex-1 min-w-[45%] bg-blue-600 rounded-xl p-4 items-center"
+              >
+                <Text className="text-3xl mb-2">📝</Text>
+                <Text className="text-white font-bold text-base text-center">
+                  Review Answers
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Analyze Patterns */}
+            <TouchableOpacity
+              onPress={handleAnalyze}
+              disabled={analyzing}
+              className={`flex-1 min-w-[45%] rounded-xl p-4 items-center ${
+                analyzing ? "bg-orange-400" : "bg-orange-600"
+              }`}
+            >
+              <Text className="text-3xl mb-2">🔍</Text>
+              <Text className="text-white font-bold text-base text-center">
+                {analyzing ? "Analyzing..." : "AI Analysis"}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Take Another Test */}
+            <TouchableOpacity
+              onPress={() => router.replace("/test")}
+              className="flex-1 min-w-[45%] bg-purple-600 rounded-xl p-4 items-center"
+            >
+              <Text className="text-3xl mb-2">📚</Text>
+              <Text className="text-white font-bold text-base text-center">
+                New Test
+              </Text>
+            </TouchableOpacity>
+
+            {/* Back to Dashboard */}
+            <TouchableOpacity
+              onPress={() => router.replace("/")}
+              className="flex-1 min-w-[45%] bg-white border-2 border-purple-600 rounded-xl p-4 items-center"
+            >
+              <Text className="text-3xl mb-2">🏠</Text>
+              <Text className="text-purple-600 font-bold text-base text-center">
+                Dashboard
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
