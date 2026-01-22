@@ -140,7 +140,8 @@ export const useTestStore = create<TestStore>((set, get) => ({
 
     try {
       const results = await getTestResults(currentTest.test_id);
-      set({ currentTest: null, questionStartTime: null });
+      // Don't clear currentTest immediately - let the navigation happen first
+      // The results page will call resetTest when it unmounts or user navigates away
       return results;
     } catch (error) {
       console.error("Error ending test:", error);

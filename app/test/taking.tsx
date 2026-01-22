@@ -84,6 +84,7 @@ export default function TestTaking() {
   const handleEndTest = async () => {
     try {
       const results = await endTest();
+      // Navigate immediately to prevent the useEffect from triggering
       router.replace({
         pathname: "/test/results",
         params: {

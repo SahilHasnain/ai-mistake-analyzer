@@ -5,13 +5,20 @@
 
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTestStore } from "../../store/testStore";
 
 export default function TestResults() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { resetTest } = useTestStore();
+
+  // Clear test state when results page loads
+  useEffect(() => {
+    resetTest();
+  }, []);
 
   // Parse results from route params
   const results = JSON.parse(params.results as string);
