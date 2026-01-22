@@ -11,14 +11,8 @@ import { useTestStore } from "../../store/testStore";
 
 export default function TestTaking() {
   const router = useRouter();
-  const {
-    currentTest,
-    submitting,
-    submitAnswer,
-    nextQuestion,
-    endTest,
-    resetTest,
-  } = useTestStore();
+  const { currentTest, submitAnswer, nextQuestion, endTest, resetTest } =
+    useTestStore();
 
   const [selectedAnswer, setSelectedAnswer] = useState<
     "A" | "B" | "C" | "D" | null
@@ -35,6 +29,13 @@ export default function TestTaking() {
     }
   }, [currentTest, router]);
 
+  // Auto-submit when answer is selected
+  useEffect(() => {
+    if (selectedAnswer && !showFeedback) {
+      handleSubmitAnswer();
+    }
+  }, [selectedAnswer]);
+
   if (!currentTest) {
     return null;
   }
@@ -46,11 +47,7 @@ export default function TestTaking() {
     currentTest.current_question === currentTest.total_questions - 1;
 
   const handleSubmitAnswer = async () => {
-    if (!selectedAnswer) {
-      Alert.alert(
-        "Select Answer",
-        "Please select an answer before submitting.",
-      );
+    if (!selectedAnswer || showFeedback) {
       return;
     }
 
@@ -268,19 +265,7 @@ export default function TestTaking() {
 
       {/* Action Button */}
       <View className="px-6 py-4 border-t border-gray-200">
-        {!showFeedback ? (
-          <TouchableOpacity
-            onPress={handleSubmitAnswer}
-            disabled={!selectedAnswer || submitting}
-            className={`rounded-xl py-4 ${
-              !selectedAnswer || submitting ? "bg-gray-300" : "bg-purple-600"
-            }`}
-          >
-            <Text className="text-lg font-bold text-center text-white">
-              {submitting ? "Submitting..." : "Submit Answer"}
-            </Text>
-          </TouchableOpacity>
-        ) : (
+        {showFeedback ? (
           <TouchableOpacity
             onPress={handleNext}
             className="py-4 bg-purple-600 rounded-xl"
@@ -289,6 +274,12 @@ export default function TestTaking() {
               {isLastQuestion ? "View Results" : "Next Question →"}
             </Text>
           </TouchableOpacity>
+        ) : (
+          <View className="rounded-xl py-4 bg-gray-100">
+            <Text className="text-lg font-bold text-center text-gray-500">
+              Select an answer above
+            </Text>
+          </View>
         )}
       </View>
     </SafeAreaView>
