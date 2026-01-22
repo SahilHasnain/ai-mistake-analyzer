@@ -49,7 +49,7 @@ export async function getUserPatterns(userId: string): Promise<Pattern[]> {
       [
         Query.equal("user_id", userId),
         Query.equal("is_resolved", false),
-        Query.orderDesc("confidence"),
+        Query.orderDesc("$createdAt"),
         Query.limit(10),
       ],
     );

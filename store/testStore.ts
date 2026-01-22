@@ -14,6 +14,7 @@ interface TestStore {
   loading: boolean;
   submitting: boolean;
   questionStartTime: number | null;
+  userAnswers: Map<number, "A" | "B" | "C" | "D">; // Track user answers by question index
 
   // Actions
   startTest: (
@@ -35,6 +36,7 @@ export const useTestStore = create<TestStore>((set, get) => ({
   loading: false,
   submitting: false,
   questionStartTime: null,
+  userAnswers: new Map(),
 
   /**
    * Start a new test session
@@ -63,6 +65,7 @@ export const useTestStore = create<TestStore>((set, get) => ({
         currentTest: testSession,
         questionStartTime: Date.now(),
         loading: false,
+        userAnswers: new Map(),
       });
     } catch (error) {
       console.error("Error starting test:", error);
@@ -75,7 +78,7 @@ export const useTestStore = create<TestStore>((set, get) => ({
    * Submit answer for current question
    */
   submitAnswer: async (answer) => {
-    const { currentTest, questionStartTime } = get();
+    const { currentTest, questionStartTime, userAnswers } = get();
 
     if (!currentTest || questionStartTime === null) {
       throw new Error("No active test session");
@@ -98,7 +101,11 @@ export const useTestStore = create<TestStore>((set, get) => ({
         testDurationSoFar,
       });
 
-      set({ submitting: false });
+      // Store the user's answer
+      const newAnswers = new Map(userAnswers);
+      newAnswers.set(currentTest.current_question, answer);
+
+      set({ submitting: false, userAnswers: newAnswers });
       return result;
     } catch (error) {
       console.error("Error submitting answer:", error);
@@ -132,7 +139,7 @@ export const useTestStore = create<TestStore>((set, get) => ({
    * End test and get results
    */
   endTest: async () => {
-    const { currentTest } = get();
+    const { currentTest, userAnswers } = get();
 
     if (!currentTest) {
       throw new Error("No active test session");
@@ -140,9 +147,14 @@ export const useTestStore = create<TestStore>((set, get) => ({
 
     try {
       const results = await getTestResults(currentTest.test_id);
-      // Don't clear currentTest immediately - let the navigation happen first
-      // The results page will call resetTest when it unmounts or user navigates away
-      return results;
+      // Return results with test data for review
+      return {
+        ...results,
+        testData: {
+          questions: currentTest.questions,
+          userAnswers: Array.from(userAnswers.entries()),
+        },
+      };
     } catch (error) {
       console.error("Error ending test:", error);
       throw error;
@@ -158,6 +170,7 @@ export const useTestStore = create<TestStore>((set, get) => ({
       loading: false,
       submitting: false,
       questionStartTime: null,
+      userAnswers: new Map(),
     });
   },
 }));
